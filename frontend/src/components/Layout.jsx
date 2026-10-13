@@ -12,6 +12,9 @@ function Layout() {
         <NavLink to="/" end className="nav-link">
           Dashboard
         </NavLink>
+        <NavLink to="/map" className="nav-link">
+          Live Map
+        </NavLink>
         <NavLink to="/vehicles" className="nav-link">
           Vehicles
         </NavLink>
@@ -19,7 +22,6 @@ function Layout() {
           Drivers
         </NavLink>
 
-        <span className="nav-soon">Live Map (soon)</span>
         <span className="nav-soon">Alerts (soon)</span>
         <span className="nav-soon">Reports (soon)</span>
       </aside>
