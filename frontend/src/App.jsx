@@ -1,21 +1,18 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Vehicles from "./pages/Vehicles.jsx";
+import Drivers from "./pages/Drivers.jsx";
 
 function App() {
-  const [status, setStatus] = useState("Checking...");
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/health")
-      .then((res) => setStatus(`Backend says: ${res.data.status}`))
-      .catch(() => setStatus("Cannot reach backend"));
-  }, []);
-
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Fleet Management System</h1>
-      <p>{status}</p>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/vehicles" element={<Vehicles />} />
+        <Route path="/drivers" element={<Drivers />} />
+      </Route>
+    </Routes>
   );
 }
 
