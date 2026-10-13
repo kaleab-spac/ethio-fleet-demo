@@ -6,7 +6,7 @@ from sqlalchemy import delete
 
 from app.database import Base, SessionLocal, engine
 from app.models import Position, Vehicle
-
+from app.services.alert_engine import check_alerts
 Base.metadata.create_all(bind=engine)
 
 TICK_SECONDS = 3   # how often positions are saved
@@ -105,7 +105,7 @@ def main():
         state[vid] = {"route": route, "total": total, "dist": total * start, "dir": 1, "speed": speed}
 
     print(f"Simulator running: {len(state)} moving vehicles, {len(PARKED)} parked. Press Ctrl+C to stop.")
-
+    alert_state = {}
     try:
         while True:
             for vid, s in state.items():
@@ -128,7 +128,9 @@ def main():
                     heading=int(round(head)) % 360,
                 ))
             db.commit()
-            print(f"Updated {len(state)} vehicles")
+
+            new_alerts = check_alerts(db, alert_state)
+            print(f"Updated {len(state)} vehicles, {new_alerts} new alerts")
             time.sleep(TICK_SECONDS)
     except KeyboardInterrupt:
         print("Simulator stopped.")

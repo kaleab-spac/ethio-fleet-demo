@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
@@ -22,8 +22,18 @@ function makeIcon(status) {
 
 function LiveMap() {
   const [vehicles, setVehicles] = useState([]);
+  const [zones, setZones] = useState([]);
   const [error, setError] = useState(false);
 
+  // Geofences rarely change, so we load them once
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/api/geofences/")
+      .then((res) => setZones(res.data.filter((z) => z.active)))
+      .catch(() => {});
+  }, []);
+
+  // Vehicle positions refresh every 3 seconds
   useEffect(() => {
     const load = () =>
       axios
@@ -56,6 +66,7 @@ function LiveMap() {
         <span><span className="dot" style={{ background: COLORS.idle }}></span>Idle</span>
         <span><span className="dot" style={{ background: COLORS.maintenance }}></span>Maintenance</span>
         <span><span className="dot" style={{ background: COLORS.offline }}></span>Offline</span>
+        <span><span className="dot" style={{ background: "#3b82f6", opacity: 0.4 }}></span>Geofence zone</span>
       </div>
 
       <div className="map-wrap">
@@ -64,6 +75,21 @@ function LiveMap() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
+          {zones.map((z) => (
+            <Circle
+              key={z.id}
+              center={[z.latitude, z.longitude]}
+              radius={z.radius_m}
+              pathOptions={{ color: "#3b82f6", weight: 2, fillOpacity: 0.12 }}
+            >
+              <Popup>
+                <div className="popup-title">{z.name}</div>
+                <div>Radius: {z.radius_m} m</div>
+              </Popup>
+            </Circle>
+          ))}
+
           {located.map((v) => (
             <Marker
               key={v.vehicle_id}
@@ -77,7 +103,7 @@ function LiveMap() {
                 <div>Status: {v.status}</div>
                 <div>Speed: {Math.round(v.speed_kmh)} km/h</div>
               </Popup>
-            </Marker>
+                      </Marker>
           ))}
         </MapContainer>
       </div>

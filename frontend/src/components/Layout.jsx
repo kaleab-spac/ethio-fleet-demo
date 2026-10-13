@@ -1,6 +1,24 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import axios from "axios";
 
 function Layout() {
+  const [openAlerts, setOpenAlerts] = useState(0);
+
+  useEffect(() => {
+    const load = () =>
+      axios
+        .get("http://localhost:8000/api/alerts/", {
+          params: { acknowledged: false, limit: 500 },
+        })
+        .then((res) => setOpenAlerts(res.data.length))
+        .catch(() => {});
+
+    load();
+    const timer = setInterval(load, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -21,8 +39,11 @@ function Layout() {
         <NavLink to="/drivers" className="nav-link">
           Drivers
         </NavLink>
+        <NavLink to="/alerts" className="nav-link">
+          Alerts
+          {openAlerts > 0 && <span className="nav-badge">{openAlerts}</span>}
+        </NavLink>
 
-        <span className="nav-soon">Alerts (soon)</span>
         <span className="nav-soon">Reports (soon)</span>
       </aside>
 
