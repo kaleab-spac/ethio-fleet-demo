@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import axios from "axios";
+import { getUser, logout } from "../auth.js";
 
 function Layout() {
   const [openAlerts, setOpenAlerts] = useState(0);
+  const user = getUser();
 
   useEffect(() => {
     const load = () =>
@@ -57,7 +59,13 @@ function Layout() {
       <div className="main">
         <header className="topbar">
           <strong>Fleet Operations</strong>
-          <span className="user">Kaleab Getnet</span>
+          <span className="user">
+            {user ? user.full_name : ""}
+            {user && <span className="role-tag">{user.role}</span>}
+            <button className="logout-btn" onClick={logout}>
+              Logout
+            </button>
+          </span>
         </header>
         <main className="content">
           <Outlet />
