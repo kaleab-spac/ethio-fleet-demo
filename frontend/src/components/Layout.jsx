@@ -46,8 +46,10 @@ function Layout() {
         <NavLink to="/maintenance" className="nav-link">
           Maintenance
         </NavLink>
+        <NavLink to="/fuel" className="nav-link">
+          Fuel
+        </NavLink>
 
-        <span className="nav-soon">Fuel (soon)</span>
         <span className="nav-soon">Reports (soon)</span>
       </aside>
 
