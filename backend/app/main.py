@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app import models  # noqa: F401  (makes sure the tables are known)
+from app.deps import get_current_user
+from app.models.user import User
 from app.routers import (
     alerts, auth, dashboard, drivers, fuel, geofences, maintenance, positions, reports, vehicles,
 )
@@ -10,7 +12,7 @@ from app.routers import (
 # Create the tables in fms.db if they don't exist yet
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Fleet Management System API", version="1.0.0")
+app = FastAPI(title="Fleet Management System API", version="1.1.0")
 
 # CORS lets our React app (port 5173) talk to this backend (port 8000)
 app.add_middleware(
@@ -21,16 +23,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+def block_viewer_changes(
+    request: Request, user: User = Depends(get_current_user)
+) -> User:
+    """Every endpoint needs a login. Viewers may only read (GET)."""
+    if request.method != "GET" and user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+# Login is open to everyone
 app.include_router(auth.router)
-app.include_router(drivers.router)
-app.include_router(vehicles.router)
-app.include_router(dashboard.router)
-app.include_router(positions.router)
-app.include_router(geofences.router)
-app.include_router(alerts.router)
-app.include_router(maintenance.router)
-app.include_router(fuel.router)
-app.include_router(reports.router)
+
+# Everything else needs a valid token
+protected = [Depends(block_viewer_changes)]
+for r in (
+    drivers.router, vehicles.router, dashboard.router, positions.router,
+    geofences.router, alerts.router, maintenance.router, fuel.router, reports.router,
+):
+    app.include_router(r, dependencies=protected)
 
 
 @app.get("/")
