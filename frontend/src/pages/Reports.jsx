@@ -16,6 +16,41 @@ const STATUS_COLORS = {
 
 const etb = (n) => `${Math.round(n).toLocaleString()} ETB`;
 
+// Turn a list of objects into a CSV file and download it
+function downloadCsv(filename, rows, columns) {
+  const escape = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const header = columns.map((c) => escape(c.label)).join(",");
+  const lines = rows.map((r) => columns.map((c) => escape(r[c.key])).join(","));
+  // The leading \uFEFF helps Excel read the file correctly
+  const csv = "\uFEFF" + [header, ...lines].join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+const FUEL_COLUMNS = [
+  { key: "fuel_date", label: "Date" },
+  { key: "vehicle_name", label: "Vehicle" },
+  { key: "liters", label: "Liters" },
+  { key: "price_per_liter_etb", label: "Price per liter (ETB)" },
+  { key: "total_cost_etb", label: "Total cost (ETB)" },
+  { key: "odometer_km", label: "Odometer (km)" },
+];
+
+const MAINT_COLUMNS = [
+  { key: "service_date", label: "Date" },
+  { key: "vehicle_name", label: "Vehicle" },
+  { key: "service_type", label: "Service" },
+  { key: "description", label: "Description" },
+  { key: "odometer_km", label: "Odometer (km)" },
+  { key: "cost_etb", label: "Cost (ETB)" },
+  { key: "next_due_date", label: "Next due date" },
+];
+
 function Reports() {
   const [fuel, setFuel] = useState(null);
   const [status, setStatus] = useState(null);
@@ -39,6 +74,16 @@ function Reports() {
       .catch(() => setError(true));
   }, []);
 
+  const exportFuel = () =>
+    axios.get("http://localhost:8000/api/fuel/").then((res) =>
+      downloadCsv("fuel-records.csv", res.data, FUEL_COLUMNS)
+    );
+
+  const exportMaintenance = () =>
+    axios.get("http://localhost:8000/api/maintenance/").then((res) =>
+      downloadCsv("maintenance-records.csv", res.data, MAINT_COLUMNS)
+    );
+
   if (error) {
     return (
       <div className="error-box">
@@ -56,7 +101,13 @@ function Reports() {
 
   return (
     <div>
-      <h2>Reports</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Reports</h2>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button className="btn" onClick={exportFuel}>Download fuel CSV</button>
+          <button className="btn" onClick={exportMaintenance}>Download maintenance CSV</button>
+        </div>
+      </div>
 
       <div className="chart-grid">
         <div className="chart-card">
