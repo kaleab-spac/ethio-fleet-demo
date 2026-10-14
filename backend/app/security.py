@@ -1,14 +1,18 @@
+import os
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
+from dotenv import load_dotenv
 
-# Demo secret used to sign tokens. For a real deployment, use a long random
-# value kept outside the code (for example in a .env file).
-SECRET_KEY = "ethio-fleet-demo-secret-change-me-before-real-use"
+load_dotenv()
+
+# The signing secret comes from the .env file, never from the code.
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is missing. Create backend/.env (see .env.example).")
 ALGORITHM = "HS256"
-TOKEN_HOURS = 8
-
+TOKEN_HOURS = int(os.getenv("TOKEN_HOURS", "8"))
 
 def hash_password(password: str) -> str:
     """Turn a password into a hash that is safe to store."""
