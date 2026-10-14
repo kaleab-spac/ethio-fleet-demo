@@ -8,6 +8,7 @@ import Alerts from "./pages/Alerts.jsx";
 import Maintenance from "./pages/Maintenance.jsx";
 import Fuel from "./pages/Fuel.jsx";
 import Reports from "./pages/Reports.jsx";
+import Users from "./pages/Users.jsx";
 import Login from "./pages/Login.jsx";
 import { getUser } from "./auth.js";
 
@@ -35,6 +36,8 @@ function App() {
         <Route path="/maintenance" element={<Maintenance />} />
         <Route path="/fuel" element={<Fuel />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/users" element={<Users />} />
+        
       </Route>
     </Routes>
   );

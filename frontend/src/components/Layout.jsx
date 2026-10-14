@@ -54,6 +54,11 @@ function Layout() {
         <NavLink to="/reports" className="nav-link">
           Reports
         </NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/users" className="nav-link">
+            Users
+          </NavLink>
+        )}
       </aside>
 
       <div className="main">
