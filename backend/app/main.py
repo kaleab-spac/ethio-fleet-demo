@@ -4,13 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app import models  # noqa: F401  (makes sure the tables are known)
 from app.routers import (
-    alerts, dashboard, drivers, fuel, geofences, maintenance, positions, vehicles,
+    alerts, dashboard, drivers, fuel, geofences, maintenance, positions, reports, vehicles,
 )
 
 # Create the tables in fms.db if they don't exist yet
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Fleet Management System API", version="0.8.0")
+app = FastAPI(title="Fleet Management System API", version="0.9.0")
 
 # CORS lets our React app (port 5173) talk to this backend (port 8000)
 app.add_middleware(
@@ -29,6 +29,7 @@ app.include_router(geofences.router)
 app.include_router(alerts.router)
 app.include_router(maintenance.router)
 app.include_router(fuel.router)
+app.include_router(reports.router)
 
 
 @app.get("/")

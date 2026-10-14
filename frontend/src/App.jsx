@@ -7,6 +7,7 @@ import LiveMap from "./pages/LiveMap.jsx";
 import Alerts from "./pages/Alerts.jsx";
 import Maintenance from "./pages/Maintenance.jsx";
 import Fuel from "./pages/Fuel.jsx";
+import Reports from "./pages/Reports.jsx";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/alerts" element={<Alerts />} />
         <Route path="/maintenance" element={<Maintenance />} />
         <Route path="/fuel" element={<Fuel />} />
+        <Route path="/reports" element={<Reports />} />
       </Route>
     </Routes>
   );

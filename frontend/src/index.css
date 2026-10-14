@@ -293,4 +293,28 @@ tr:last-child td {
   color: #94a3b8;
   font-size: 0.8rem;
 }.badge.overdue { background: #fee2e2; color: #991b1b; }
-.badge.due_soon { background: #fef3c7; color: #92400e; }
+.badge.due_soon { background: #fef3c7; color: #92400e; }.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.chart-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.chart-note {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+}
