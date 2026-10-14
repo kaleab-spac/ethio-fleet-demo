@@ -14,6 +14,7 @@ class VehicleBase(BaseModel):
     status: str = "idle"
     odometer_km: float = Field(default=0.0, ge=0)
     driver_id: int | None = None
+    archived: bool = False
 
 
 class VehicleCreate(VehicleBase):
@@ -31,6 +32,7 @@ class VehicleUpdate(BaseModel):
     status: str | None = None
     odometer_km: float | None = Field(default=None, ge=0)
     driver_id: int | None = None
+    archived: bool | None = None
 
 
 class VehicleOut(VehicleBase):

@@ -15,16 +15,21 @@ router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 def dashboard_summary(db: Session = Depends(get_db)):
     today = date.today()
     soon = today + timedelta(days=60)
+    not_archived = Vehicle.archived.is_(False)
 
-    # Count vehicles grouped by status
-    rows = db.execute(select(Vehicle.status, func.count()).group_by(Vehicle.status)).all()
+    # Count vehicles grouped by status (archived vehicles are left out)
+    rows = db.execute(
+        select(Vehicle.status, func.count()).where(not_archived).group_by(Vehicle.status)
+    ).all()
     by_status = {status: count for status, count in rows}
 
     total_vehicles = sum(by_status.values())
     total_drivers = db.scalar(select(func.count()).select_from(Driver))
 
     unassigned = db.scalar(
-        select(func.count()).select_from(Vehicle).where(Vehicle.driver_id.is_(None))
+        select(func.count())
+        .select_from(Vehicle)
+        .where(Vehicle.driver_id.is_(None), not_archived)
     )
     expired = db.scalar(
         select(func.count()).select_from(Driver).where(Driver.license_expiry < today)

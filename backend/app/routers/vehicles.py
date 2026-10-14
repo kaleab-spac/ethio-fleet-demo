@@ -17,8 +17,11 @@ def check_driver_exists(db: Session, driver_id: int | None):
 
 
 @router.get("/", response_model=list[VehicleOut])
-def list_vehicles(db: Session = Depends(get_db)):
-    return db.scalars(select(Vehicle).order_by(Vehicle.id)).all()
+def list_vehicles(include_archived: bool = False, db: Session = Depends(get_db)):
+    query = select(Vehicle).order_by(Vehicle.id)
+    if not include_archived:
+        query = query.where(Vehicle.archived.is_(False))
+    return db.scalars(query).all()
 
 
 @router.get("/{vehicle_id}", response_model=VehicleOut)
