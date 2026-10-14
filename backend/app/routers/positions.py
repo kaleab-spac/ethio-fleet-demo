@@ -33,7 +33,9 @@ def live_positions(db: Session = Depends(get_db)):
     }
 
     result = []
-    for v in db.scalars(select(Vehicle).order_by(Vehicle.id)).all():
+    for v in db.scalars(
+        select(Vehicle).where(Vehicle.archived.is_(False)).order_by(Vehicle.id)
+    ).all():
         p = latest.get(v.id)
         result.append(
             LivePosition(

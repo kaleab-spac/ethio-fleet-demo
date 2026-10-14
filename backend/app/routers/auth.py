@@ -17,6 +17,10 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     # Same message for a wrong username or a wrong password, on purpose
     if user is None or not user.active or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Wrong username or password")
+    if user.status == "pending":
+        raise HTTPException(status_code=403, detail="Your account is waiting for manager approval")
+    if user.status != "active":
+        raise HTTPException(status_code=403, detail="Your account is suspended. Contact your manager")
     return LoginResponse(access_token=create_token(user.username, user.role), user=user)
 
 
