@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { getUser } from "../auth.js";
 
 const API = "http://localhost:8000/api/alerts/";
 
@@ -26,6 +27,7 @@ function Alerts() {
   const [alerts, setAlerts] = useState(null);
   const [filter, setFilter] = useState("open");
   const [error, setError] = useState(false);
+  const isAdmin = getUser()?.role === "admin";
 
   const load = () => {
     const params = filter === "open" ? { acknowledged: false, limit: 200 } : { limit: 200 };
@@ -45,7 +47,10 @@ function Alerts() {
   }, [filter]);
 
   const acknowledge = (id) => {
-    axios.put(`${API}${id}/acknowledge`).then(load);
+    axios
+      .put(`${API}${id}/acknowledge`)
+      .then(load)
+      .catch(() => window.alert("You do not have permission to do this."));
   };
 
   if (error) {
@@ -60,6 +65,12 @@ function Alerts() {
   return (
     <div>
       <h2>Alerts ({alerts.length})</h2>
+
+      {!isAdmin && (
+        <div className="chart-note" style={{ marginBottom: "0.75rem" }}>
+          You are signed in as a viewer. Only admins can acknowledge alerts.
+        </div>
+      )}
 
       <div className="tabs">
         <button
@@ -106,10 +117,12 @@ function Alerts() {
                 <td>
                   {a.acknowledged ? (
                     <span className="muted">Acknowledged</span>
-                  ) : (
+                  ) : isAdmin ? (
                     <button className="btn" onClick={() => acknowledge(a.id)}>
                       Acknowledge
                     </button>
+                  ) : (
+                    <span className="muted">View only</span>
                   )}
                 </td>
               </tr>
