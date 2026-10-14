@@ -5,9 +5,8 @@ from sqlalchemy import func, select
 
 from app.models import Alert, Geofence, Position, Vehicle
 
-SPEED_LIMIT_KMH = 72
-SPEED_COOLDOWN_S = 45
-
+SPEED_LIMIT_KMH = 78
+SPEED_COOLDOWN_S = 120
 
 def distance_m(lat1, lon1, lat2, lon2):
     """Distance between two GPS points in meters."""
