@@ -117,17 +117,21 @@ function Fuel() {
         {isAdmin && <button className="btn" onClick={openAdd}>+ Add fill-up</button>}
       </div>
 
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", margin: "0.75rem 0", alignItems: "end" }}>
-        <div className="form-grid" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-          <div>
-            <label>Vehicle</label>
-            <select value={filters.vehicle_id} onChange={setFilter("vehicle_id")}>
-              <option value="">All vehicles</option>
-              {vehicles.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-            </select>
-          </div>
-          <div><label>From</label><input type="date" value={filters.date_from} onChange={setFilter("date_from")} /></div>
-          <div><label>To</label><input type="date" value={filters.date_to} onChange={setFilter("date_to")} /></div>
+      <div className="filter-bar">
+        <div>
+          <label>Vehicle</label>
+          <select value={filters.vehicle_id} onChange={setFilter("vehicle_id")}>
+            <option value="">All vehicles</option>
+            {vehicles.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label>From</label>
+          <input type="date" value={filters.date_from} onChange={setFilter("date_from")} />
+        </div>
+        <div>
+          <label>To</label>
+          <input type="date" value={filters.date_to} onChange={setFilter("date_to")} />
         </div>
         {(filters.vehicle_id || filters.date_from || filters.date_to) && (
           <button className="btn secondary" onClick={() => setFilters({ vehicle_id: "", date_from: "", date_to: "" })}>
