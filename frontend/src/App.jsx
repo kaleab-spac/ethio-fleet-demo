@@ -11,6 +11,8 @@ import Maintenance from "./pages/Maintenance.jsx";
 import Fuel from "./pages/Fuel.jsx";
 import Reports from "./pages/Reports.jsx";
 import Users from "./pages/Users.jsx";
+import AuditLog from "./pages/AuditLog.jsx";
+import Notifications from "./pages/Notifications.jsx";
 import Login from "./pages/Login.jsx";
 import DriverHome from "./pages/DriverHome.jsx";
 import DriverVehicle from "./pages/DriverVehicle.jsx";
@@ -55,6 +57,8 @@ function App() {
         <Route path="/fuel" element={<Fuel />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/audit" element={<AuditLog />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
 
       <Route
@@ -67,6 +71,7 @@ function App() {
         <Route path="/driver" element={<DriverHome />} />
         <Route path="/driver/vehicle" element={<DriverVehicle />} />
         <Route path="/driver/defects" element={<DriverDefects />} />
+        <Route path="/driver/notifications" element={<Notifications />} />
       </Route>
     </Routes>
   );

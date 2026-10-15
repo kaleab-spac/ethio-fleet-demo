@@ -413,4 +413,45 @@ tr:last-child td {
   border-radius: 6px;
   font-size: 0.9rem;
   background: #ffffff;
+}.bell {
+  position: relative;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  margin-right: 0.75rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: #1f2937;
+}
+
+.bell .count {
+  background: #ef4444;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  margin-left: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.note-row {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.note-row.unread {
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+}
+
+.note-row .title {
+  font-weight: 600;
+}
+
+.note-row .meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
