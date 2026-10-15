@@ -10,6 +10,7 @@ const TYPE_LABELS = {
   geofence_exit: "Zone exit",
   license: "License",
   safety: "Safety score",
+  defect: "Defect report",
 };
 
 // The server stores UTC time. We show it in Ethiopia time.

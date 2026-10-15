@@ -45,6 +45,9 @@ function Layout() {
           Alerts
           {openAlerts > 0 && <span className="nav-badge">{openAlerts}</span>}
         </NavLink>
+        <NavLink to="/defects" className="nav-link">
+          Defects
+        </NavLink>
         <NavLink to="/maintenance" className="nav-link">
           Maintenance
         </NavLink>

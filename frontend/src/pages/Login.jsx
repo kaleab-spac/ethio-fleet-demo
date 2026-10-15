@@ -18,11 +18,15 @@ function Login() {
       .post("http://localhost:8000/api/auth/login", { username, password })
       .then((res) => {
         saveLogin(res.data);
-        navigate("/");
+        navigate(res.data.user.role === "driver" ? "/driver" : "/");
       })
       .catch((err) => {
-        if (err.response && err.response.status === 401) {
+        const status = err.response?.status;
+        const detail = err.response?.data?.detail;
+        if (status === 401) {
           setError("Wrong username or password.");
+        } else if (status === 403 && typeof detail === "string") {
+          setError(detail);
         } else {
           setError("Cannot reach the server. Is the backend running?");
         }
