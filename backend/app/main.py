@@ -6,13 +6,14 @@ from app import models  # noqa: F401  (makes sure the tables are known)
 from app.deps import get_current_user
 from app.models.user import User
 from app.routers import (
-    alerts, auth, dashboard, drivers, fuel, geofences, maintenance, positions, reports, users, vehicles,
+    alerts, auth, dashboard, driver_portal, drivers, fuel, geofences, maintenance,
+    positions, reports, users, vehicles,
 )
 
 # Create the tables in fms.db if they don't exist yet
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Fleet Management System API", version="1.2.0")
+app = FastAPI(title="Fleet Management System API", version="1.3.0")
 
 # CORS lets our React app (port 5173) talk to this backend (port 8000)
 app.add_middleware(
@@ -24,10 +25,14 @@ app.add_middleware(
 )
 
 
-def block_viewer_changes(
-    request: Request, user: User = Depends(get_current_user)
-) -> User:
-    """Every endpoint needs a login. Viewers may only read (GET)."""
+def fleet_access(request: Request, user: User = Depends(get_current_user)) -> User:
+    """Rules for fleet-wide data:
+    - drivers: no access at all (they use /api/driver instead)
+    - viewers: read only (GET)
+    - admins: everything
+    """
+    if user.role == "driver":
+        raise HTTPException(status_code=403, detail="Drivers cannot access fleet-wide data")
     if request.method != "GET" and user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
@@ -39,8 +44,11 @@ app.include_router(auth.router)
 # Account management: the router itself requires an admin
 app.include_router(users.router)
 
-# Everything else needs a valid token
-protected = [Depends(block_viewer_changes)]
+# The driver's own data: the router itself requires a driver
+app.include_router(driver_portal.router)
+
+# Everything else is fleet-wide data
+protected = [Depends(fleet_access)]
 for r in (
     drivers.router, vehicles.router, dashboard.router, positions.router,
     geofences.router, alerts.router, maintenance.router, fuel.router, reports.router,
