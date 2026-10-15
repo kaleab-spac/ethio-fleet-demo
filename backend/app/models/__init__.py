@@ -9,8 +9,9 @@ from app.models.user import User
 from app.models.defect import DefectReport
 from app.models.notification import Notification
 from app.models.audit import AuditLog
+from app.models.fuel_request import FuelRequest
 
 __all__ = [
     "Driver", "Vehicle", "Position", "Geofence", "Alert", "Maintenance", "FuelLog",
-    "User", "DefectReport", "Notification", "AuditLog",
+    "User", "DefectReport", "Notification", "AuditLog", "FuelRequest",
 ]
