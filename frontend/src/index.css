@@ -454,4 +454,29 @@ tr:last-child td {
 .note-row .meta {
   font-size: 0.75rem;
   color: #94a3b8;
+}.chart-card .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.chart-card .form-grid label {
+  display: block;
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 0.2rem;
+}
+
+.chart-card .form-grid input,
+.chart-card .form-grid select,
+.chart-card .form-grid textarea {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.chart-card .modal-actions {
+  margin-top: 1rem;
 }
