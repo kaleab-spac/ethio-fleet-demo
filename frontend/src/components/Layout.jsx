@@ -41,6 +41,7 @@ function Layout() {
         <NavLink to="/defects" className="nav-link">Defects</NavLink>
         <NavLink to="/maintenance" className="nav-link">Maintenance</NavLink>
         <NavLink to="/fuel" className="nav-link">Fuel</NavLink>
+        <NavLink to="/fuel-requests" className="nav-link">Fuel requests</NavLink>
         <NavLink to="/reports" className="nav-link">Reports</NavLink>
         {user?.role === "admin" && (
           <>

@@ -13,6 +13,7 @@ function DriverLayout() {
         </div>
         <NavLink to="/driver" end className="nav-link">My Dashboard</NavLink>
         <NavLink to="/driver/vehicle" className="nav-link">My Vehicle</NavLink>
+        <NavLink to="/driver/fuel" className="nav-link">Fuel requests</NavLink>
         <NavLink to="/driver/defects" className="nav-link">Report a defect</NavLink>
         <NavLink to="/driver/notifications" className="nav-link">Notifications</NavLink>
       </aside>

@@ -9,6 +9,7 @@ import Alerts from "./pages/Alerts.jsx";
 import Defects from "./pages/Defects.jsx";
 import Maintenance from "./pages/Maintenance.jsx";
 import Fuel from "./pages/Fuel.jsx";
+import FuelRequests from "./pages/FuelRequests.jsx";
 import Reports from "./pages/Reports.jsx";
 import Users from "./pages/Users.jsx";
 import AuditLog from "./pages/AuditLog.jsx";
@@ -17,6 +18,7 @@ import Login from "./pages/Login.jsx";
 import DriverHome from "./pages/DriverHome.jsx";
 import DriverVehicle from "./pages/DriverVehicle.jsx";
 import DriverDefects from "./pages/DriverDefects.jsx";
+import DriverFuel from "./pages/DriverFuel.jsx";
 import { getUser } from "./auth.js";
 
 // Managers and viewers only. Drivers are sent to their own portal.
@@ -55,6 +57,7 @@ function App() {
         <Route path="/defects" element={<Defects />} />
         <Route path="/maintenance" element={<Maintenance />} />
         <Route path="/fuel" element={<Fuel />} />
+        <Route path="/fuel-requests" element={<FuelRequests />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/users" element={<Users />} />
         <Route path="/audit" element={<AuditLog />} />
@@ -70,6 +73,7 @@ function App() {
       >
         <Route path="/driver" element={<DriverHome />} />
         <Route path="/driver/vehicle" element={<DriverVehicle />} />
+        <Route path="/driver/fuel" element={<DriverFuel />} />
         <Route path="/driver/defects" element={<DriverDefects />} />
         <Route path="/driver/notifications" element={<Notifications />} />
       </Route>
