@@ -77,11 +77,14 @@ def fuel_summary(
 ):
     """Totals and cost per km, using the same filters as the list.
 
-    Cost per km = (cost of all fill-ups except the earliest) / distance,
-    where distance = highest odometer - lowest odometer in the filtered records.
-    Needs at least 2 fill-ups with different odometer readings, otherwise null.
+    Cost per km = (cost of the measured fill-ups except the earliest) / distance,
+    where distance = highest odometer - lowest odometer among the measured records.
+    Records with no odometer, or flagged as "odometer lower than before", are left
+    out of this calculation (they still count in liters and total cost).
+    Needs at least 2 measured fill-ups with different readings, otherwise null.
     """
     month_start = date.today().replace(day=1)
+    flags = compute_flags(db)
     logs = db.scalars(
         filtered_query(vehicle_id, date_from, date_to).order_by(FuelLog.fuel_date, FuelLog.id)
     ).all()
@@ -103,14 +106,19 @@ def fuel_summary(
     for vid, items in by_vehicle.items():
         v_liters = sum(i.liters for i in items)
         v_cost = sum(i.total_cost_etb for i in items)
-        measured = [i for i in items if i.odometer_km > 0]
+        measured = [
+            i for i in items
+            if i.odometer_km > 0
+            and not any("lower" in reason for reason in flags.get(i.id, []))
+        ]
         cost_per_km = None
         km = 0.0
         if len(measured) >= 2:
             first = min(measured, key=lambda i: i.odometer_km)
             km = max(i.odometer_km for i in measured) - first.odometer_km
             if km > 0:
-                cost_per_km = round((v_cost - first.total_cost_etb) / km, 2)
+                measured_cost = sum(i.total_cost_etb for i in measured)
+                cost_per_km = round((measured_cost - first.total_cost_etb) / km, 2)
         vehicles.append({
             "vehicle_id": vid,
             "vehicle_name": items[0].vehicle_name,
