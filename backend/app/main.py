@@ -6,14 +6,14 @@ from app import models  # noqa: F401  (makes sure the tables are known)
 from app.deps import get_current_user
 from app.models.user import User
 from app.routers import (
-    alerts, auth, dashboard, driver_portal, drivers, fuel, geofences, maintenance,
-    positions, reports, users, vehicles,
+    alerts, auth, dashboard, defects, driver_portal, drivers, fuel, geofences,
+    maintenance, positions, reports, users, vehicles,
 )
 
 # Create the tables in fms.db if they don't exist yet
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Fleet Management System API", version="1.3.0")
+app = FastAPI(title="Fleet Management System API", version="1.4.0")
 
 # CORS lets our React app (port 5173) talk to this backend (port 8000)
 app.add_middleware(
@@ -52,6 +52,7 @@ protected = [Depends(fleet_access)]
 for r in (
     drivers.router, vehicles.router, dashboard.router, positions.router,
     geofences.router, alerts.router, maintenance.router, fuel.router, reports.router,
+    defects.router,
 ):
     app.include_router(r, dependencies=protected)
 

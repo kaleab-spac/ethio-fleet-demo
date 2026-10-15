@@ -6,7 +6,9 @@ from app.models.alert import Alert
 from app.models.maintenance import Maintenance
 from app.models.fuel import FuelLog
 from app.models.user import User
+from app.models.defect import DefectReport
 
 __all__ = [
-    "Driver", "Vehicle", "Position", "Geofence", "Alert", "Maintenance", "FuelLog", "User",
+    "Driver", "Vehicle", "Position", "Geofence", "Alert", "Maintenance", "FuelLog",
+    "User", "DefectReport",
 ]

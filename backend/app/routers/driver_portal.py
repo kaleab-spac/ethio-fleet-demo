@@ -4,9 +4,12 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user
+from app.models.alert import Alert
+from app.models.defect import DefectReport
 from app.models.driver import Driver
 from app.models.user import User
 from app.models.vehicle import Vehicle
+from app.schemas.defect import DefectCreate, DefectOut
 from app.schemas.driver import DriverOut
 from app.schemas.vehicle import VehicleOut
 
@@ -40,3 +43,41 @@ def my_vehicles(user: User = Depends(get_current_user), db: Session = Depends(ge
             Vehicle.driver_id == user.driver_id, Vehicle.archived.is_(False)
         )
     ).all()
+
+
+@router.get("/defects", response_model=list[DefectOut])
+def my_defects(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.scalars(
+        select(DefectReport)
+        .where(DefectReport.driver_id == user.driver_id)
+        .order_by(DefectReport.id.desc())
+    ).all()
+
+
+@router.post("/defects", response_model=DefectOut, status_code=201)
+def report_defect(
+    data: DefectCreate, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    vehicle = db.get(Vehicle, data.vehicle_id)
+    # Same answer whether the vehicle is missing or belongs to someone else
+    if vehicle is None or vehicle.archived or vehicle.driver_id != user.driver_id:
+        raise HTTPException(status_code=403, detail="You can only report on your own vehicle")
+
+    report = DefectReport(
+        vehicle_id=vehicle.id,
+        driver_id=user.driver_id,
+        description=data.description,
+        severity=data.severity,
+    )
+    db.add(report)
+    # Tell the manager through the normal alerts list
+    name = vehicle.name or vehicle.plate_number
+    db.add(Alert(
+        vehicle_id=vehicle.id,
+        alert_type="defect",
+        severity=data.severity,
+        message=f"{user.full_name} reported a defect on {name}: {data.description[:150]}",
+    ))
+    db.commit()
+    db.refresh(report)
+    return report
