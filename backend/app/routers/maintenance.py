@@ -15,9 +15,22 @@ SOON_DAYS = 30
 SOON_KM = 1000
 
 
+def check_record(db: Session, vehicle_id: int, service_date: date,
+                 next_due_date: date | None, check_archived: bool):
+    vehicle = db.get(Vehicle, vehicle_id)
+    if vehicle is None:
+        raise HTTPException(status_code=400, detail="Vehicle does not exist")
+    if check_archived and vehicle.archived:
+        raise HTTPException(status_code=400, detail="This vehicle is archived")
+    if service_date > date.today():
+        raise HTTPException(status_code=400, detail="The service date cannot be in the future")
+    if next_due_date is not None and next_due_date < service_date:
+        raise HTTPException(status_code=400, detail="The next due date cannot be before the service date")
+
+
 # NOTE: this route must come before "/{record_id}" routes
 @router.get("/reminders")
-def reminders(db: Session = Depends(get_db)):
+def reminders(vehicle_id: int | None = None, db: Session = Depends(get_db)):
     """Services that are overdue or due soon (latest record per vehicle + service type)."""
     today = date.today()
     records = db.scalars(
@@ -31,8 +44,12 @@ def reminders(db: Session = Depends(get_db)):
 
     result = []
     for r in latest.values():
+        if vehicle_id is not None and r.vehicle_id != vehicle_id:
+            continue
         vehicle = db.get(Vehicle, r.vehicle_id)
-        odometer = vehicle.odometer_km if vehicle else 0
+        if vehicle is None or vehicle.archived:
+            continue
+        odometer = vehicle.odometer_km
         status = None
         reason = None
 
@@ -68,18 +85,26 @@ def reminders(db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[MaintenanceOut])
-def list_maintenance(vehicle_id: int | None = None, db: Session = Depends(get_db)):
-    """Newest service first. Use ?vehicle_id=2 to see one vehicle."""
+def list_maintenance(
+    vehicle_id: int | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    db: Session = Depends(get_db),
+):
+    """Newest service first. Optional filters: vehicle and service date range."""
     query = select(Maintenance).order_by(Maintenance.service_date.desc(), Maintenance.id.desc())
     if vehicle_id is not None:
         query = query.where(Maintenance.vehicle_id == vehicle_id)
+    if date_from is not None:
+        query = query.where(Maintenance.service_date >= date_from)
+    if date_to is not None:
+        query = query.where(Maintenance.service_date <= date_to)
     return db.scalars(query).all()
 
 
 @router.post("/", response_model=MaintenanceOut, status_code=201)
 def create_maintenance(data: MaintenanceCreate, db: Session = Depends(get_db)):
-    if db.get(Vehicle, data.vehicle_id) is None:
-        raise HTTPException(status_code=400, detail="Vehicle does not exist")
+    check_record(db, data.vehicle_id, data.service_date, data.next_due_date, check_archived=True)
     record = Maintenance(**data.model_dump())
     db.add(record)
     db.commit()
@@ -92,7 +117,15 @@ def update_maintenance(record_id: int, data: MaintenanceUpdate, db: Session = De
     record = db.get(Maintenance, record_id)
     if record is None:
         raise HTTPException(status_code=404, detail="Maintenance record not found")
-    for field, value in data.model_dump(exclude_unset=True).items():
+    changes = data.model_dump(exclude_unset=True)
+    check_record(
+        db,
+        record.vehicle_id,
+        changes.get("service_date", record.service_date),
+        changes["next_due_date"] if "next_due_date" in changes else record.next_due_date,
+        check_archived=False,
+    )
+    for field, value in changes.items():
         setattr(record, field, value)
     db.commit()
     db.refresh(record)

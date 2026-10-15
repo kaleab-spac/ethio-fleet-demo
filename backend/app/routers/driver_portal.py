@@ -12,6 +12,7 @@ from app.models.vehicle import Vehicle
 from app.schemas.defect import DefectCreate, DefectOut
 from app.schemas.driver import DriverOut
 from app.schemas.vehicle import VehicleOut
+from app.services.notify import audit, notify_admins
 
 
 def require_driver(user: User = Depends(get_current_user)) -> User:
@@ -70,7 +71,8 @@ def report_defect(
         severity=data.severity,
     )
     db.add(report)
-    # Tell the manager through the normal alerts list
+    db.flush()  # gives the report an id so the audit entry can point to it
+
     name = vehicle.name or vehicle.plate_number
     db.add(Alert(
         vehicle_id=vehicle.id,
@@ -78,6 +80,13 @@ def report_defect(
         severity=data.severity,
         message=f"{user.full_name} reported a defect on {name}: {data.description[:150]}",
     ))
+    notify_admins(
+        db,
+        f"New {data.severity} defect report",
+        f"{user.full_name} reported a defect on {name}: {data.description[:200]}",
+        "/defects",
+    )
+    audit(db, user, "defect.reported", "defect", report.id, f"{name}, severity {data.severity}")
     db.commit()
     db.refresh(report)
     return report

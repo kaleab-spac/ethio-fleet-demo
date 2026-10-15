@@ -7,8 +7,10 @@ from app.models.maintenance import Maintenance
 from app.models.fuel import FuelLog
 from app.models.user import User
 from app.models.defect import DefectReport
+from app.models.notification import Notification
+from app.models.audit import AuditLog
 
 __all__ = [
     "Driver", "Vehicle", "Position", "Geofence", "Alert", "Maintenance", "FuelLog",
-    "User", "DefectReport",
+    "User", "DefectReport", "Notification", "AuditLog",
 ]
