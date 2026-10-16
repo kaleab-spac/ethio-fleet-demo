@@ -8,11 +8,15 @@ from app.models import Driver, FuelLog, Maintenance, Vehicle
 router = APIRouter(prefix="/api/reports", tags=["Reports"])
 
 
+def verified_fuel(db: Session):
+    return db.scalars(select(FuelLog).where(FuelLog.status == "verified")).all()
+
+
 @router.get("/fuel-by-month")
 def fuel_by_month(db: Session = Depends(get_db)):
-    """Fuel cost (ETB) and liters for each month, oldest first."""
+    """Verified fuel cost (ETB) and liters for each month, oldest first."""
     months = {}
-    for log in db.scalars(select(FuelLog)).all():
+    for log in verified_fuel(db):
         key = log.fuel_date.strftime("%Y-%m")
         m = months.setdefault(key, {"month": key, "cost_etb": 0.0, "liters": 0.0})
         m["cost_etb"] += log.total_cost_etb
@@ -26,9 +30,9 @@ def fuel_by_month(db: Session = Depends(get_db)):
 
 @router.get("/fleet-status")
 def fleet_status(db: Session = Depends(get_db)):
-    """Number of vehicles in each status."""
+    """Number of vehicles in each status (archived vehicles are left out)."""
     counts = {"active": 0, "idle": 0, "maintenance": 0, "offline": 0}
-    for v in db.scalars(select(Vehicle)).all():
+    for v in db.scalars(select(Vehicle).where(Vehicle.archived.is_(False))).all():
         counts[v.status] = counts.get(v.status, 0) + 1
     return [{"status": k, "count": c} for k, c in counts.items()]
 
@@ -42,11 +46,11 @@ def driver_safety(db: Session = Depends(get_db)):
 
 @router.get("/cost-by-vehicle")
 def cost_by_vehicle(db: Session = Depends(get_db)):
-    """Fuel cost + maintenance cost per vehicle (ETB), highest total first."""
+    """Verified fuel cost + maintenance cost per vehicle (ETB), highest total first."""
     totals = {}
-    for v in db.scalars(select(Vehicle)).all():
+    for v in db.scalars(select(Vehicle).where(Vehicle.archived.is_(False))).all():
         totals[v.id] = {"vehicle": v.name or v.plate_number, "fuel_etb": 0.0, "maintenance_etb": 0.0}
-    for log in db.scalars(select(FuelLog)).all():
+    for log in verified_fuel(db):
         if log.vehicle_id in totals:
             totals[log.vehicle_id]["fuel_etb"] += log.total_cost_etb
     for rec in db.scalars(select(Maintenance)).all():

@@ -17,10 +17,13 @@ MAX_PRICE_ETB = 150
 
 
 def compute_flags(db: Session) -> dict[int, list[str]]:
-    """Review reasons for every fuel record, keyed by record id."""
+    """Review reasons for every non-rejected fuel record, keyed by record id.
+    The 'previous odometer' comes from verified records only."""
     flags: dict[int, list[str]] = {}
     logs = db.scalars(
-        select(FuelLog).order_by(FuelLog.vehicle_id, FuelLog.fuel_date, FuelLog.id)
+        select(FuelLog)
+        .where(FuelLog.status != "rejected")
+        .order_by(FuelLog.vehicle_id, FuelLog.fuel_date, FuelLog.id)
     ).all()
     previous_odometer: dict[int, float] = {}
     for log in logs:
@@ -35,7 +38,7 @@ def compute_flags(db: Session) -> dict[int, list[str]]:
             )
         if reasons:
             flags[log.id] = reasons
-        if log.odometer_km > 0:
+        if log.status == "verified" and log.odometer_km > 0:
             previous_odometer[log.vehicle_id] = log.odometer_km
     return flags
 
@@ -56,8 +59,10 @@ def check_vehicle_and_date(db: Session, vehicle_id: int, fuel_date: date):
         raise HTTPException(status_code=400, detail="The fuel date cannot be in the future")
 
 
-def filtered_query(vehicle_id, date_from, date_to):
+def filtered_query(vehicle_id, date_from, date_to, status=None):
     query = select(FuelLog)
+    if status and status != "all":
+        query = query.where(FuelLog.status == status)
     if vehicle_id is not None:
         query = query.where(FuelLog.vehicle_id == vehicle_id)
     if date_from is not None:
@@ -75,7 +80,7 @@ def fuel_summary(
     date_to: date | None = None,
     db: Session = Depends(get_db),
 ):
-    """Totals and cost per km, using the same filters as the list.
+    """Totals and cost per km. Only VERIFIED fill-ups are counted.
 
     Cost per km = (cost of the measured fill-ups except the earliest) / distance,
     where distance = highest odometer - lowest odometer among the measured records.
@@ -86,7 +91,9 @@ def fuel_summary(
     month_start = date.today().replace(day=1)
     flags = compute_flags(db)
     logs = db.scalars(
-        filtered_query(vehicle_id, date_from, date_to).order_by(FuelLog.fuel_date, FuelLog.id)
+        filtered_query(vehicle_id, date_from, date_to, "verified").order_by(
+            FuelLog.fuel_date, FuelLog.id
+        )
     ).all()
 
     total_liters = 0.0
@@ -144,11 +151,13 @@ def list_fuel(
     vehicle_id: int | None = None,
     date_from: date | None = None,
     date_to: date | None = None,
+    status: str | None = "verified",
     db: Session = Depends(get_db),
 ):
+    """Verified fill-ups by default. Use ?status=all to see every status."""
     flags = compute_flags(db)
     logs = db.scalars(
-        filtered_query(vehicle_id, date_from, date_to).order_by(
+        filtered_query(vehicle_id, date_from, date_to, status).order_by(
             FuelLog.fuel_date.desc(), FuelLog.id.desc()
         )
     ).all()
@@ -157,8 +166,9 @@ def list_fuel(
 
 @router.post("/", response_model=FuelOut, status_code=201)
 def create_fuel(data: FuelCreate, db: Session = Depends(get_db)):
+    """Entered by an admin, so it is verified straight away."""
     check_vehicle_and_date(db, data.vehicle_id, data.fuel_date)
-    log = FuelLog(**data.model_dump())
+    log = FuelLog(**data.model_dump(), status="verified")
     db.add(log)
     db.commit()
     db.refresh(log)

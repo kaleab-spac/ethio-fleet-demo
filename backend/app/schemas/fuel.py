@@ -26,4 +26,5 @@ class FuelOut(FuelCreate):
     vehicle_name: str | None = None
     total_cost_etb: float
     created_at: datetime
+    status: str = "verified"
     flags: list[str] = []  # reasons this entry needs review
