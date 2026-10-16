@@ -479,4 +479,65 @@ tr:last-child td {
 
 .chart-card .modal-actions {
   margin-top: 1rem;
+}.badge.critical { background: #7f1d1d; color: #ffffff; }
+
+.modal.wide {
+  width: 720px;
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem;
+  border-left: 2px solid #e2e8f0;
+}
+
+.timeline li {
+  padding: 0.25rem 0 0.6rem 0.9rem;
+  position: relative;
+  font-size: 0.85rem;
+}
+
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0.45rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.timeline .when {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.comment-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.comment-box.internal {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.comment-box .who {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.warn-box {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  font-weight: 600;
 }
