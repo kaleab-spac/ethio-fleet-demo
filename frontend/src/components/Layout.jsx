@@ -40,6 +40,7 @@ function Layout() {
         </NavLink>
         <NavLink to="/defects" className="nav-link">Defects</NavLink>
         <NavLink to="/maintenance" className="nav-link">Maintenance</NavLink>
+        <NavLink to="/maintenance-requests" className="nav-link">Maint. requests</NavLink>
         <NavLink to="/fuel" className="nav-link">Fuel</NavLink>
         <NavLink to="/fuel-requests" className="nav-link">Fuel requests</NavLink>
         <NavLink to="/fill-ups" className="nav-link">Fill-ups</NavLink>

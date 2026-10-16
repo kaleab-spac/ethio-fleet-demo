@@ -8,6 +8,7 @@ import LiveMap from "./pages/LiveMap.jsx";
 import Alerts from "./pages/Alerts.jsx";
 import Defects from "./pages/Defects.jsx";
 import Maintenance from "./pages/Maintenance.jsx";
+import MaintenanceRequests from "./pages/MaintenanceRequests.jsx";
 import Fuel from "./pages/Fuel.jsx";
 import FuelRequests from "./pages/FuelRequests.jsx";
 import Fillups from "./pages/Fillups.jsx";
@@ -20,6 +21,7 @@ import DriverHome from "./pages/DriverHome.jsx";
 import DriverVehicle from "./pages/DriverVehicle.jsx";
 import DriverDefects from "./pages/DriverDefects.jsx";
 import DriverFuel from "./pages/DriverFuel.jsx";
+import DriverMaintenance from "./pages/DriverMaintenance.jsx";
 import { getUser } from "./auth.js";
 
 // Managers and viewers only. Drivers are sent to their own portal.
@@ -57,6 +59,7 @@ function App() {
         <Route path="/alerts" element={<Alerts />} />
         <Route path="/defects" element={<Defects />} />
         <Route path="/maintenance" element={<Maintenance />} />
+        <Route path="/maintenance-requests" element={<MaintenanceRequests />} />
         <Route path="/fuel" element={<Fuel />} />
         <Route path="/fuel-requests" element={<FuelRequests />} />
         <Route path="/fill-ups" element={<Fillups />} />
@@ -77,6 +80,7 @@ function App() {
         <Route path="/driver/vehicle" element={<DriverVehicle />} />
         <Route path="/driver/fuel" element={<DriverFuel />} />
         <Route path="/driver/defects" element={<DriverDefects />} />
+        <Route path="/driver/maintenance" element={<DriverMaintenance />} />
         <Route path="/driver/notifications" element={<Notifications />} />
       </Route>
     </Routes>
