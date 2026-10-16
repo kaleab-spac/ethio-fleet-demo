@@ -10,6 +10,7 @@ import Defects from "./pages/Defects.jsx";
 import Maintenance from "./pages/Maintenance.jsx";
 import Fuel from "./pages/Fuel.jsx";
 import FuelRequests from "./pages/FuelRequests.jsx";
+import Fillups from "./pages/Fillups.jsx";
 import Reports from "./pages/Reports.jsx";
 import Users from "./pages/Users.jsx";
 import AuditLog from "./pages/AuditLog.jsx";
@@ -58,6 +59,7 @@ function App() {
         <Route path="/maintenance" element={<Maintenance />} />
         <Route path="/fuel" element={<Fuel />} />
         <Route path="/fuel-requests" element={<FuelRequests />} />
+        <Route path="/fill-ups" element={<Fillups />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/users" element={<Users />} />
         <Route path="/audit" element={<AuditLog />} />
