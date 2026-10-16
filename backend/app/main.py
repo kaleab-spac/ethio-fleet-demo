@@ -7,13 +7,14 @@ from app.deps import get_current_user
 from app.models.user import User
 from app.routers import (
     alerts, audit, auth, dashboard, defects, driver_portal, drivers, fillups, fuel,
-    fuel_requests, geofences, maintenance, notifications, positions, reports, users, vehicles,
+    fuel_requests, geofences, maintenance, maintenance_requests, notifications,
+    positions, reports, users, vehicles,
 )
 
 # Create the tables in fms.db if they don't exist yet
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Fleet Management System API", version="1.7.0")
+app = FastAPI(title="Fleet Management System API", version="1.8.0")
 
 # CORS lets our React app (port 5173) talk to this backend (port 8000)
 app.add_middleware(
@@ -51,9 +52,10 @@ app.include_router(notifications.router)
 # The driver's own data: the router itself requires a driver
 app.include_router(driver_portal.router)
 
-# Fuel requests and fill-ups: each endpoint applies its own driver / staff rules
+# Requests and fill-ups: each endpoint applies its own driver / staff rules
 app.include_router(fuel_requests.router)
 app.include_router(fillups.router)
+app.include_router(maintenance_requests.router)
 
 # Everything else is fleet-wide data
 protected = [Depends(fleet_access)]
